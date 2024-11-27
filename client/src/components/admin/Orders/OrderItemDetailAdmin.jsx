@@ -13,7 +13,7 @@ const OrderItemDetailAdmin = ({ data, onClose }) => {
             <label className="block font-semibold">Họ và tên người nhận:</label>
             <input
               type="text"
-              value={data.shippingInfo.fullName}
+              value={data.shippingInfo?.fullName}
               readOnly
               className="border border-gray-300 focus:border-2 focus:border-blue-500 focus:outline-none rounded-md p-2 w-full"
             />
@@ -23,7 +23,8 @@ const OrderItemDetailAdmin = ({ data, onClose }) => {
         <label className="block font-semibold">Địa chỉ:</label>
         <input
           type="text"
-          value={data.shippingInfo.address}
+          value={`${data.shippingInfo?.address}, ${data.shippingInfo.ward}, ${data.shippingInfo.district}, ${data.shippingInfo.city}`}
+
           readOnly
           className="border border-gray-300 focus:border-2 focus:border-blue-500 focus:outline-none rounded-md p-2 w-full mb-2"
         />
@@ -76,11 +77,11 @@ const OrderItemDetailAdmin = ({ data, onClose }) => {
                 <td className="p-2">
                   <img 
                     src={item?.image} 
-                    alt={item?.productName} 
+                    alt={item?.name} 
                     className="w-14 h-14 object-cover" 
                   />
                 </td>
-                <td className="p-2">{item?.productName}</td>
+                <td className="p-2">{item?.name}</td>
                 <td className="p-2">{item.quantity}</td>
                 <td className="p-2">${item.price}</td>
               </tr>

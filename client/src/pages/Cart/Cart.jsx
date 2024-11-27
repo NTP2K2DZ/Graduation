@@ -22,9 +22,11 @@ function ShoppingCart() {
   //   setItems(updatedItems);
   // };
   const handleCheckout = () => {
-    navigate('/checkouts', {
-      state: { items, totalAmount }
-    });
+    navigate('/checkouts');
+  };
+
+  const handleContinueShopping = () => {
+    navigate('/');
   };
 
   const handleQuantityChange = (itemId, newQuantity) => {
@@ -80,14 +82,17 @@ function ShoppingCart() {
                     key={item._id}
                     className="border rounded-md p-4 mb-4 flex justify-between items-start"
                   >
-                    <div className="flex">
+                    <div className="flex max-w-[400px]">
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-16 h-16 rounded-md"
                       />
                       <div className="ml-4">
-                        <h2 className="text-sm font-medium">{item.name}</h2>
+                        <Link to={`/products/${item.productId}`}>
+                          <h2 className="text-sm font-medium hover:text-blue-500">{item.name}</h2>
+                        </Link>
+
                         <p className="text-gray-600 max-w-xs text-xs">
                           {item.cpu.name}/RAM {item.ram.capacity}/ GPU {item.gpu.name}/{item.storage}
                         </p>
@@ -144,7 +149,7 @@ function ShoppingCart() {
                   </div>
                 ))}
               </div>
-              <div className="md:col-span-1 border rounded-md p-4 bg-gray-50 h-64">
+              <div className="md:col-span-1 border rounded-md p-4 bg-gray-50 h-68">
                 <h2 className="text-xl font-bold mb-4">Tổng đơn hàng</h2>
                 <div className="flex justify-between mb-2">
                   <span>Tổng tạm tính</span>
@@ -162,6 +167,12 @@ function ShoppingCart() {
                   className="mt-10 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
                 >
                   Thanh toán
+                </button>
+                <button
+                  onClick={handleContinueShopping}
+                  className=" mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
+                >
+                  Tiếp tục mua sắm
                 </button>
               </div>
             </div>

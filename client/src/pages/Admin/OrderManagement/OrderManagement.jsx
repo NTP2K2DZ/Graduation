@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faChevronRight, faUpLong, faDownLong } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import ReactPaginate from "react-paginate";
 import BasicModal from "../../../components/Modal/BasicModal";
@@ -12,26 +12,45 @@ import { getAllOrders } from "../../../features/order/orderSlice";
 
 const OrderManagement = () => {
   const dispatch = useDispatch();
-  const {orders, loading, error} = useSelector((state) => state.order)
-  console.log(orders);
+  const { orders, loading, error } = useSelector((state) => state.order);
   const [page, setPage] = useState(0);
   const ordersPerPage = 7;
   const [isChangeOrderStatusModalOpen, setIsChangeOrderStatusModalOpen] = useState(false);
   const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
-  const [initOrder, setInitOrder] = useState()
+  const [initOrder, setInitOrder] = useState();
+  const [sortStatus, setSortStatus] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     dispatch(getAllOrders());
   }, [dispatch]);
-  
-  const totalOrders = orders.length;
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter(order => 
+      order.shippingInfo.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [orders, searchQuery]);
+
+  const totalOrders = filteredOrders.length;
   const totalPages = Math.ceil(totalOrders / ordersPerPage);
+
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
 
   const indexOfLastOrder = (page + 1) * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  const displayedOrders = useMemo(() => {
+    if (sortStatus === "asc") {
+      return [...filteredOrders].sort((a, b) => a.totalAmount - b.totalAmount);
+    } else if (sortStatus === "desc") {
+      return [...filteredOrders].sort((a, b) => b.totalAmount - a.totalAmount);
+    }
+    return filteredOrders;
+  }, [filteredOrders, sortStatus]);
+
+  const currentOrders = displayedOrders.slice(indexOfFirstOrder, indexOfLastOrder);
 
   const handleOpenChangeOrderStatusModal = () => {
     setIsChangeOrderStatusModalOpen(true);
@@ -53,16 +72,26 @@ const OrderManagement = () => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
   };
 
+  const handleSortByPrice = () => {
+    setSortStatus((prevStatus) => {
+      if (prevStatus === "asc") return "desc";
+      if (prevStatus === "desc") return null;
+      return "asc";
+    });
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold">All Orders</h1>
+      <h1 className="text-2xl font-bold">Danh sách đơn hàng</h1>
 
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center bg-white p-2 shadow-sm rounded-lg w-full md:w-1/3">
           <input
             type="text"
-            placeholder="Search for orders"
+            placeholder="Tìm kiếm đơn hàng..."
             className="flex-grow px-4 py-2 border border-gray-200 focus:border-2 focus:border-blue-500 focus:outline-none rounded-md"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
           <button className="ml-2 p-2 bg-gray-200 rounded-md">
             <i className="fa fa-search"></i>
@@ -104,7 +133,16 @@ const OrderManagement = () => {
               <th className="p-4">ID</th>
               <th className="p-4">Tên khách hàng</th>
               <th className="p-4">Ngày đặt hàng</th>
-              <th className="p-4">Tổng tiền</th>
+              <th className="p-4 cursor-pointer" onClick={handleSortByPrice}>Tổng tiền
+                <FontAwesomeIcon
+                  icon={faUpLong}
+                  className={`ml-2 text-xs ${sortStatus === "asc" ? "text-black" : "text-gray-300"}`}
+                />
+                <FontAwesomeIcon
+                  icon={faDownLong}
+                  className={`ml-1 text-xs ${sortStatus === "desc" ? "text-black" : "text-gray-300"}`}
+                />
+              </th>
               <th className="p-4">Trạng thái</th>
               <th className="p-4"></th>
             </tr>
@@ -115,7 +153,7 @@ const OrderManagement = () => {
                 <td className="p-4 text-sm">{order._id}</td>
                 <td className="p-4 text-sm">{order.shippingInfo.fullName}</td>
                 <td className="p-4 text-sm">{order.orderDate}</td>
-                <td className="p-4 text-sm">{formatNumber(order.totalAmount)}</td>
+                <td className="p-4 text-sm truncate max-w-[120px]">{formatNumber(order.totalAmount)}</td>
                 <td className="p-4 text-sm">{order.orderStatus}</td>
                 <td className="p-4 text-sm">
                   <div className="flex space-x-2">

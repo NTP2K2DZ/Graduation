@@ -3,12 +3,24 @@ import {useLocation, useNavigate} from "react-router-dom"
 import { useSelector, useDispatch } from 'react-redux';
 import {submitOrderPayment, submitOrderCod} from "../../features/order/orderSlice";
 import { Link } from 'react-router-dom';
+import { clearCart } from "../../features/cart/cartSlice"
 
 function Checkout() {
+  const navigate = useNavigate()
   const location = useLocation();
   const dispatch = useDispatch();
-  const navigate = useNavigate()
-  const { items, totalAmount } = location.state || { items: [], totalAmount: 0 };
+  const cartData = JSON.parse(localStorage.getItem('cart'));
+  useEffect(() => {
+    if (!cartData) {
+      navigate("/cart");
+    }
+  }, [cartData, navigate]);
+
+  if (!cartData) {
+    return null;
+  }
+  const items = cartData.items;
+  const totalAmount = cartData.totalAmount;
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
@@ -18,7 +30,12 @@ function Checkout() {
   const [choosedProvince, setChoosedProvince] = useState('');
   const [choosedDistrict, setChoosedDistrict] = useState('');
   const [choosedWard, setChoosededWard] = useState('');
-
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate("/cart");
+    }
+  }, [items, navigate]);
+  
   const [formData, setFormData] = useState({
     email: "",
     fullName: "",
@@ -30,10 +47,6 @@ function Checkout() {
     delivery: "",
     payment: "",
   });
-
-  
-
-  console.log(formData)
 
   const [errors, setErrors] = useState({});
 
@@ -131,6 +144,7 @@ function Checkout() {
       products: items.map(item => ({
         productId: item._id,
         quantity: item.quantity,
+        name:  item.name,
         image: item.image,
         price: item.price,
       })),
@@ -154,11 +168,17 @@ function Checkout() {
     }
 
     setErrors({});
+    console.log(orderData);
 
     if (formData.payment === "MoMo") {
       dispatch(submitOrderPayment(orderData))
         .then((result) => {
-          console.log("Đặt hàng thành công qua MoMo", result);
+          if (submitOrderPayment.fulfilled.match(result)) {
+            console.log("Đặt hàng thành công qua MoMo:", result.payload);
+            dispatch(clearCart());
+          } else {
+            console.error("Đặt hàng qua MoMo không thành công:", result.payload);
+          }
         })
         .catch((error) => {
           console.error("Lỗi khi đặt hàng qua MoMo:", error);
@@ -166,12 +186,18 @@ function Checkout() {
     } else if (formData.payment === "Thanh toán khi nhận hàng") {
       dispatch(submitOrderCod(orderData))
         .then((result) => {
-          console.log("Đặt hàng thành công với thanh toán khi nhận hàng", result);
+          if (submitOrderCod.fulfilled.match(result)) {
+            console.log("Đặt hàng thành công với thanh toán khi nhận hàng:", result.payload);
+            dispatch(clearCart());
+          } else {
+            console.error("Đặt hàng với thanh toán khi nhận hàng không thành công:", result.payload);
+          }
         })
         .catch((error) => {
           console.error("Lỗi khi đặt hàng với thanh toán khi nhận hàng:", error);
         });
     }
+    
   };
 
   const formatNumber = (num) => {

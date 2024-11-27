@@ -1,4 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
+import ProtectedRouter from "./components/protected/ProtectedRouter";
+
 import Home from "./pages/Home/Home";
 import App from "./App";
 // import Root from "./pages/Root";
@@ -10,7 +12,6 @@ import Collections from "./pages/Collections/Collections";
 import Account from "./pages/Account/Account";
 import AccountInformation from "./pages/Account/AccountComputer/AccountInformation/AccountInformation";
 import AccountOrder from "./pages/Account/AccountComputer/AccountOrder/AccountOrder";
-import EmptyPagePayMent from "./pages/Account/AccountComputer/AccountOrder/EmptyPage/EmptyPagePayMent";
 import AccountNotification from "./pages/Account/AccountComputer/AccountNotification/AccountNotification";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import DashBoard from "./pages/Admin/DashBoard/DashBoard";
@@ -22,8 +23,6 @@ import Signup from "./pages/Signup/Signup";
 import OrderManagement from "./pages/Admin/OrderManagement/OrderManagement"
 import CategoryManagement  from "./pages/Admin/CategoryManagement/CategoryManagement"
 import RestoreManagement from "./pages/Admin/RestoreManagement/RestoreManagement";
-import EmptyPageDelivery from "./pages/Account/AccountComputer/AccountOrder/EmptyPage/EmptyPageDelivery";
-import EmptyPageCompleted from "./pages/Account/AccountComputer/AccountOrder/EmptyPage/EmptyPageCompleted";
 import ProductVariation from "./pages/Admin/ProductManagement/ProductVariation";
 
 import AccountChangePassword from "./pages/Account/AccountComputer/AccountChangePassword/AccountChangePassword";
@@ -64,7 +63,11 @@ const router = createBrowserRouter([
       },
       {
         path: "checkouts",
-        element: <Checkouts></Checkouts>,
+        element: (
+          <ProtectedRouter>
+            <Checkouts />
+          </ProtectedRouter>
+        ),
       },
       {
         path: "/login",
@@ -76,7 +79,11 @@ const router = createBrowserRouter([
       },
       {
         path: "account",
-        element: <Account />,
+        element: (
+          <ProtectedRouter>
+            <Account/>
+          </ProtectedRouter>
+        ),
         children: [
           {
             path: "information",
@@ -86,21 +93,6 @@ const router = createBrowserRouter([
           {
             path: "order",
             element: <AccountOrder />,
-            children: [
-              {
-                path: "emptyDelivery",
-                element: <EmptyPageDelivery />,
-                index: true,
-              },
-              {
-                path: "emptyPayment",
-                element: <EmptyPagePayMent />,
-              },
-              {
-                path: "emptyCompleted",
-                element: <EmptyPageCompleted />,
-              },
-            ]
           },
           {
             path: "notifications",
@@ -157,7 +149,7 @@ const router = createBrowserRouter([
         element: <CategoryManagement />,
       },
       {
-        path: "products/:productType/:productId",
+        path: "products/:productId",
         element: <ProductVariation />,
       },
       {
