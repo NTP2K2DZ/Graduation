@@ -1,25 +1,30 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment, faBell, faBars } from '@fortawesome/free-solid-svg-icons'; // Import icon faBars
+import { faComment, faBell, faBars } from '@fortawesome/free-solid-svg-icons';
 import { GiEvilMoon } from "react-icons/gi";
 import { BsEmojiSunglasses } from "react-icons/bs";
+import { logoutUser} from "../../../features/Auth/authSlice"
+import { useDispatch, useSelector } from 'react-redux';
 
 // eslint-disable-next-line react/prop-types
 function Header({ toggleSidebar, toggleDarkMode }) {
   const [isChecked, setIsChecked] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
+  const handleLogout = () => {dispatch(logoutUser());};
+
   const handleToggle = () => {
     setIsChecked(!isChecked);
     toggleDarkMode();
   };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!isDropdownOpen);
-  };
+  const toggleDropdown = () => {setDropdownOpen(!isDropdownOpen);};
 
   return (
-    <header className="bg-white border-b px-5 py-5 shadow-sm w-full sticky top-0">
+    <header className="bg-white border-b px-5 py-5 shadow-sm w-full sticky top-0 z-[999]">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button 
@@ -29,7 +34,7 @@ function Header({ toggleSidebar, toggleDarkMode }) {
           >
             <FontAwesomeIcon icon={faBars} className="w-6 h-6" />
           </button>
-          <a href="/">
+          <a href="/admin">
             <span className="font-bold text-lg">Admin</span>
           </a>
         </div>
@@ -69,14 +74,19 @@ function Header({ toggleSidebar, toggleDarkMode }) {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg z-50">
                 <ul className="py-1">
-                  <li>
+                  {/* <li>
                     <a href="#" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Profile</a>
                   </li>
                   <li>
                     <a href="#" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Settings</a>
-                  </li>
+                  </li> */}
                   <li>
-                    <a href="#" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Logout</a>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
                   </li>
                 </ul>
               </div>

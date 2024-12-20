@@ -3,16 +3,20 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateCategory } from "../../../features/Admin/adminCategorySlice";
 import { getAllCategories } from "../../../features/category/categoriesSlice";
+import ImageUploadOne from "../../images/ImageUploadOne";
 
 const UpdateCategory = ({ editCategory, onClose }) => {
   const dispatch = useDispatch();
-  const categories = useSelector((state) => state.category.categories); // Lấy danh sách danh mục từ Redux
-  useEffect(() => {
-    console.log("UpdateCate: ", categories)
-  },[categories])
-  const [error, setError] = useState(""); // State để lưu lỗi
+  const categories = useSelector((state) => state.category.categories);
+
+  // useEffect(() => {
+  //   console.log("UpdateCate: ", categories)
+  // },[categories])
+
+  const [error, setError] = useState("");
   const [updatedCategory, setUpdatedCategory] = useState({
     name: "",
+    image: null,
   });
 
   // Gán dữ liệu từ editCategory vào form khi mở modal
@@ -20,6 +24,7 @@ const UpdateCategory = ({ editCategory, onClose }) => {
     if (editCategory) {
       setUpdatedCategory({
         name: editCategory.name || "",
+        image: editCategory.image || null,
       });
       setError(""); // Xóa lỗi cũ nếu có
     }
@@ -27,9 +32,7 @@ const UpdateCategory = ({ editCategory, onClose }) => {
 
   const duplicateCategory = useMemo(() => {
     return categories.find(
-      (cat) =>
-        cat.name.toLowerCase().trim() === updatedCategory.name.toLowerCase().trim() &&
-        cat._id !== editCategory._id
+      (cat) => cat.name.toLowerCase().trim() === updatedCategory.name.toLowerCase().trim() && cat._id !== editCategory._id
     );
   }, [categories, updatedCategory.name, editCategory]);
 
@@ -39,34 +42,31 @@ const UpdateCategory = ({ editCategory, onClose }) => {
     setError(""); 
   }, []);
 
+  const handleImageUpload = useCallback((url) => {
+    setUpdatedCategory((prev) => ({ ...prev, image: url }));
+  },[]);
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
 
-      // Kiểm tra trùng tên danh mục
-      // const duplicateCategory = categories.find(
-      //   (cat) =>
-      //     cat.name.toLowerCase().trim() === updatedCategory.name.toLowerCase().trim() && cat._id !== editCategory._id
-      // );
-
       if (duplicateCategory) {
-        setError("Danh mục đã tồn tại."); // Hiển thị lỗi nếu trùng
+        setError("Danh mục đã tồn tại.");
         return;
       }
 
       try {
-        // Gửi yêu cầu cập nhật danh mục
         await dispatch(
           updateCategory({
             id: editCategory._id,
             editCategory: updatedCategory,
           })
         ).unwrap();
-
+        setUpdatedCategory({ name: "", image: null });
         dispatch(getAllCategories());
         onClose();
       } catch (error) {
-        setError("Error edit category", error); // Hiển thị lỗi nếu cập nhật thất bại
+        setError("Error edit category", error);
       }
     },[duplicateCategory, dispatch, editCategory, updatedCategory, onClose]
   );
@@ -89,18 +89,25 @@ const UpdateCategory = ({ editCategory, onClose }) => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-sm font-medium">Logo</label>
+          <ImageUploadOne onUploadComplete={handleImageUpload} existingUrl={updatedCategory.image} />
+        </div>
+      </div>
+
       <div className="flex justify-end space-x-2">
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
-          Update
+          Cập nhật danh mục
         </button>
         <button
           onClick={onClose}
           className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
         >
-          Close
+          Đóng
         </button>
       </div>
     </form>

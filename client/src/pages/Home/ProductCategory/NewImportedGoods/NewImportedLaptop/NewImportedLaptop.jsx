@@ -1,53 +1,49 @@
-import { useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import React from "react";
 import { PiCaretRight } from "react-icons/pi";
 import NewImportedProducts from "../../../../../components/home/NewImportedProducts/NewImportedProducts";
+import { setCategoryName } from "../../../../../features/Client/ClientFilterSlice";
+import { useDispatch } from "react-redux";
 
-const NewImportedLaptop = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+import { Link } from "react-router-dom";
 
-  useEffect(() => {
-    fetch('https://laptech4k.onrender.com/api/v1/products', {credentials: "include"})
-      .then(response => response.json())
-      .then(data => {
-        const formattedProducts = data.map(product => {
-          // Kiểm tra nếu product_variants tồn tại và có giá
-          const price = product.product_variants ? product.product_variants.price : null;
-          return {
-            ...product,
-            price: price // Nếu không có giá, sẽ là null
-          };
-        });
-        setProducts(formattedProducts);
-        setLoading(false);
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
+const NewImportedLaptop = React.memo(({ title, categoryName, products, bgColor, path, search }) => {
+  const dispatch = useDispatch();
+  const handleProductClick = (categoryName) => {
+    dispatch(setCategoryName(categoryName));
+  };
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (!products || products.length === 0) {
+    return null;
   }
 
   return (
     <div className="px-[10px] w-full mx-auto border-none opacity-100 max-w-[1100px] mb-6">
-      <div className="relative min-h-[416px] bg-pink-500 rounded-md">
+      <div className={`relative min-h-[416px] ${bgColor} rounded-md`}>
         <div className="relative flex justify-between items-center px-4 h-14 bg-transparent border-b border-white/50">
           <a href="#" className="no-underline text-inherit cursor-pointer">
             <div className="uppercase px-2 m-0 p-0 border-none opacity-100 text-white font-bold no-underline text-[20px] leading-7 overflow-hidden transition-colors duration-300">
-              laptop mới nhập
+              {title}
             </div>
           </a>
-          <a href="#" className="no-underline text-inherit cursor-pointer">
+          <Link 
+            to={{pathname: path,
+                search: search}} 
+            state={{ from: "Taskbar" }}
+            className="no-underline text-inherit cursor-pointer"
+            onClick={() => handleProductClick(categoryName)}
+          >
             <div className="cursor-pointer text-white box-border flex items-center text-[14px]">
               Xem tất cả
               <PiCaretRight className="w-[1em] h-[1em]" />
             </div>
-          </a>
+          </Link>
         </div>
         <NewImportedProducts data={products} itemsPerPage={window.innerWidth > 540 ? 5 : 2} />
       </div>
     </div>
   );
-}
+});
+NewImportedLaptop.displayName = "NewImportedLaptop";
 
 export default NewImportedLaptop;

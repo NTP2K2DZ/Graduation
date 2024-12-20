@@ -2,13 +2,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from "../../api/apiConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 // Thunk to get all orders
 export const getAllOrders = createAsyncThunk(
   'order/getAllOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/order');
+      const response = await api.get('/admin/orders');
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -21,7 +20,7 @@ export const changeOrderStatus = createAsyncThunk(
   'order/changeOrderStatus',
   async ({ orderId, newStatus }, { rejectWithValue }) => {
     try {
-      const response = await api.patch(`/order/${orderId}`, { orderStatus: newStatus });
+      const response = await api.patch(`/admin/orders/update/${orderId}`, { orderStatus: newStatus });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -34,7 +33,7 @@ export const submitOrderPayment = createAsyncThunk(
   'order/submitOrder',
   async (orderData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/order-payment', orderData);
+      const response = await api.post('/user/order-payment', orderData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -46,7 +45,7 @@ export const submitOrderCod = createAsyncThunk(
   'order/submitOrderCod',
   async (orderData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/order-payment', orderData);
+      const response = await api.post('/user/order-payment', orderData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -83,7 +82,6 @@ const orderSlice = createSlice({
       .addCase(submitOrderPayment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload.error;
-        toast.error(state.error);
       })
       // Đặt hàng Cod
       .addCase(submitOrderCod.pending, (state) => {
@@ -94,12 +92,11 @@ const orderSlice = createSlice({
         state.loading = false;
         state.orderInfo = action.payload
         toast.success("Đặt hàng thành công");
-        window.location.href = `/`
+        window.location.href = `/account/order`
       })
       .addCase(submitOrderCod.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload.error;
-        toast.error(state.error);
       })
       // Get Danh sách đơn hàng
       .addCase(getAllOrders.pending, (state) => {

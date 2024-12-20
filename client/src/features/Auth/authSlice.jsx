@@ -22,10 +22,11 @@ export const loginUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await api.post('/user/login', formData);
+      // console.log(response.data);
       const token = response.data;
       if (token) {
-        localStorage.setItem('access_token', token.user.data.token);
-        localStorage.setItem('user', JSON.stringify(token.user.data));
+        localStorage.setItem('access_token', token.user.token);
+        localStorage.setItem('user', JSON.stringify(token.user));
       }
       return token;
     } catch (error) {
@@ -51,8 +52,8 @@ const authSlice = createSlice({
     user: JSON.parse(localStorage.getItem('user')) || null,
     profileBgColor: localStorage.getItem("profile_bg_color") || null,
     loginLoading: false,
+    error: null,   
     registerLoading: false,
-    error: null,
     registerError: null,
     isAuthenticated: !!localStorage.getItem('access_token'),
   },
@@ -62,11 +63,14 @@ const authSlice = createSlice({
       state.user = {
         username: action.payload.name,
         email: action.payload.email,
+        role: "user"
       };
       state.isAuthenticated = true;
-    
       localStorage.setItem("access_token", action.payload.token);
       localStorage.setItem("user", JSON.stringify(state.user));
+      const randomColor = generateRandomColor();
+      state.profileBgColor = randomColor;
+      localStorage.setItem("profile_bg_color", randomColor);
     },
     logoutUser: (state) => {
       state.token = null;
@@ -75,9 +79,11 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
       state.registerError = null;
+
       localStorage.removeItem('access_token');
       localStorage.removeItem('user'); 
       localStorage.removeItem("profile_bg_color");
+      
       window.location.href = "/";
       toast.success("Bạn đã đăng xuất");
     },
@@ -90,7 +96,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.registerLoading = false;
-        toast.success("Đăng ký thành công. Vui lòng đăng nhập để tiếp tục.");
+        toast.info("Vui lòng kiểm tra eamil để xác minh tài khoản");
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.registerLoading = false;
@@ -105,15 +111,14 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loginLoading = false;
-        state.token = action.payload.user.data.token;
-        state.user = action.payload.user.data;
+        state.token = action.payload.user.token;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
 
         // Tạo màu ngẫu nhiên khi đăng nhập
         const randomColor = generateRandomColor();
         state.profileBgColor = randomColor;
         localStorage.setItem("profile_bg_color", randomColor);
-        
         toast.success("Đăng nhập thành công");
       })
       .addCase(loginUser.rejected, (state, action) => {

@@ -2,14 +2,17 @@ import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addCategories } from "../../../features/Admin/adminCategorySlice";
 import { getAllCategories } from "../../../features/category/categoriesSlice";
+import ImageUploadOne from "../../images/ImageUploadOne";
 
 // eslint-disable-next-line react/prop-types
 const AddCategory = ({ onClose }) => {
   const dispatch = useDispatch();
-  const categories = useSelector((state) => state.category.categories); // Lấy danh sách danh mục từ Redux
-  const [error, setError] = useState(""); // State để hiển thị lỗi
+  const categories = useSelector((state) => state.category.categories);
+  
+  const [error, setError] = useState("");
   const [newCategory, setNewCategory] = useState({
     name: "",
+    image: null,
   });
 
   const handleChange = useCallback((e) => {
@@ -18,8 +21,12 @@ const AddCategory = ({ onClose }) => {
       ...prevCategory,
       [name]: value,
     }));
-    setError(""); // Reset lỗi khi người dùng nhập
+    setError("");
   }, []);
+
+  const handleImageUpload = useCallback((url) => {
+    setNewCategory((prev) => ({ ...prev, image: url }));
+  },[]);
 
   const handleSubmit = useCallback( 
     async (e) => {
@@ -54,7 +61,7 @@ const AddCategory = ({ onClose }) => {
         console.log("Added category:", newCategory);
         console.log("Category added successfully");
         dispatch(getAllCategories());
-        setNewCategory({ name: "" });
+        setNewCategory({ name: "", image: null });
         onClose();
       } catch (error) {
         console.error("Error adding category:", error);
@@ -78,7 +85,14 @@ const AddCategory = ({ onClose }) => {
             } focus:border-2 focus:border-blue-500 focus:outline-none rounded-md p-2`}
             required
           />
-          {error && <p className="mt-1 text-sm text-red-500">{error}</p>} {/* Hiển thị lỗi */}
+          {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-sm font-medium">Ảnh</label>
+          <ImageUploadOne onUploadComplete={handleImageUpload} existingUrl={newCategory.image} />
         </div>
       </div>
 
@@ -87,14 +101,13 @@ const AddCategory = ({ onClose }) => {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
-          Save
+          Thêm danh mục
         </button>
         <button
-          type="button" // Đổi thành type="button" để không gửi form
           onClick={onClose}
           className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
         >
-          Close
+          Đóng
         </button>
       </div>
     </form>

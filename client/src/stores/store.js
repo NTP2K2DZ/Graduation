@@ -1,19 +1,33 @@
 import { configureStore } from "@reduxjs/toolkit";
+import statsReducer from "../features/Admin/statistical";
+import adminTierReducer from "../features/Admin/adminTiersSlice";
+import adminBrandReducer from "../features/Admin/adminBrandSlice";
 import adminProductReducer from "../features/Admin/adminProductsSlice";
 import adminCategoryReducer from "../features/Admin/adminCategorySlice";
-import adminBrandReducer from "../features/Admin/adminBrandSlice";
-import productReducer from "../features/product/productsSlice";
-import brandReducer from "../features/brand/brandsSlice";
-import categoryReducer from "../features/category/categoriesSlice";
-import productVariationReducer from "../features/product/productVariationSlice";
 import adminVariationReducer from "../features/Admin/adminVariationsSlice";
+
+import productReducer from "../features/product/productsSlice";
+import productVariationReducer from "../features/product/productVariationSlice";
+
+import userReducer from "../features/user/userSlice";
 import cartReducer from "../features/cart/cartSlice";
+import brandReducer from "../features/brand/brandsSlice";
 import orderReducer from "../features/order/orderSlice";
-import userReducer from "../features/user/userSlice"
+import categoryReducer from "../features/category/categoriesSlice";
+import tierReducer from "../features/tier/tiersSlice";
+
 import authReducer from "../features/Auth/authSlice";
 import authProfileReducer from "../features/Auth/authProfileSlice";
 import authOrdersUserReducer from "../features/Auth/authOrdersUserSlice";
-import statsReducer from "../features/Admin/statistical"
+
+import { productApi } from "../features/Client/ClientProductQuery";
+import ClientProductReducer from "../features/Client/ClientProductSlice";
+import ClientFilterReducer from '../features/Client/ClientFilterSlice';
+import ClientCommentReducer from '../features/Client/ClientCommentSlice';
+import ClientBrandReducer from '../features/Client/ClientBrandSlice';
+import ClientCategoryReducer from "../features/Client/ClientCategorySlice";
+import ClientDiscountReducer from "../features/Client/ClientDiscountSlice";
+import CommentReducer from "../features/Client/Comment";
 
 export const store = configureStore({
   reducer: {
@@ -23,57 +37,25 @@ export const store = configureStore({
     product: productReducer,
     cart: cartReducer,
     order: orderReducer,
+    tier: tierReducer,
     user: userReducer,
+    stats: statsReducer,
     adminProduct: adminProductReducer,
     adminVariation: adminVariationReducer,
     adminCategory: adminCategoryReducer,
     adminBrand: adminBrandReducer,
+    adminTier: adminTierReducer,
     auth: authReducer,
     profile: authProfileReducer,
     ordersUser: authOrdersUserReducer,
-    stats: statsReducer,
+    clientProduct: ClientProductReducer,
+    clientComment: ClientCommentReducer,
+    clientBrand: ClientBrandReducer,
+    clientCategory: ClientCategoryReducer,
+    clientDiscount: ClientDiscountReducer,
+    comment: CommentReducer,
+    filter: ClientFilterReducer,
+    [productApi.reducerPath]: productApi.reducer, 
   },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(productApi.middleware),
 });
-
-// import { configureStore } from "@reduxjs/toolkit";
-// import adminProductReducer from "../features/Admin/adminProductsSlice";
-// import brandReducer from "../features/brand/brandsSlice";
-// import categoryReducer from "../features/Category/categoriesSlice";
-// import useCaseReducer from "../features/usecase/usecaseSlice";
-// import productVariationReducer from "../features/product/productVariationSlice";
-// import typeReducer from "./../stores/slices/typeSlice";
-// import productReducer from "../stores/slices/producSlice";
-// import { productApi } from "../stores/query/productQuery"; // Import API slice
-
-// import { persistStore, persistReducer } from "redux-persist";
-// import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
-
-// // Cấu hình persist
-// const persistConfig = {
-//   key: "root",
-//   storage,
-//   blacklist: ["brand", "usecase"],
-// };
-
-// const persistedQueryReducer = persistReducer(persistConfig, productReducer);
-
-// // Cấu hình store
-// export const store = configureStore({
-//   reducer: {
-//     productVariation: productVariationReducer,
-//     useCase: useCaseReducer,
-//     brand: brandReducer,
-//     category: categoryReducer,
-//     adminProduct: adminProductReducer,
-//     type: typeReducer,
-//     query: persistedQueryReducer,
-//     [productApi.reducerPath]: productApi.reducer,
-//   },
-//   middleware: (getDefaultMiddleware) =>
-//     getDefaultMiddleware({
-//       serializableCheck: false,
-//     }).concat(productApi.middleware),
-// });
-
-// // Khởi tạo persistor
-// export const persistor = persistStore(store);

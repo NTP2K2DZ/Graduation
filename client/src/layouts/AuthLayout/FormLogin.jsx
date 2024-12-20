@@ -59,8 +59,13 @@ function FormLogin() {
     } else {
       setErrors({});
       try {
-        await dispatch(loginUser(formData)).unwrap();
-        navigate(from, {replace: true});
+        const result = await dispatch(loginUser(formData)).unwrap();
+        const role = result.user.role;
+        if (role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          navigate(from, { replace: true });
+        }
       } catch (err) {
         console.error("Đăng nhập thất bại:", err);
       }
@@ -97,6 +102,7 @@ function FormLogin() {
                 id="email"
                 name="email"
                 // type="email"
+                tabIndex="1"
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Nhập email của bạn"
@@ -121,6 +127,7 @@ function FormLogin() {
               <input
                 id="password"
                 name="password"
+                tabIndex="2"
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleInputChange}

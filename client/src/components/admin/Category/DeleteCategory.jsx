@@ -12,8 +12,8 @@ const DeleteCategory = ({categoryId, categoryName, onClose }) => {
       .unwrap()
       .then(() => {
         console.log("Danh mục đã được xóa thành công.");
-        dispatch(getAllCategories()); // Cập nhật danh sách sau khi xóa
-        onClose(); // Đóng modal
+        dispatch(getAllCategories());
+        onClose();
       })
       .catch((error) => {
         console.error("Lỗi khi xóa danh mục:", error);
@@ -22,9 +22,7 @@ const DeleteCategory = ({categoryId, categoryName, onClose }) => {
   
   return (
     <div className="space-y-4">
-      <h2 className="mb-4 text-xl font-semibold tracking-wide text-red-500">
-        Xóa danh mục
-      </h2>
+      <h2 className="mb-4 text-xl font-semibold tracking-wide text-red-500">Xóa danh mục</h2>
       <p className="text-gray-700">
         Bạn có chắc chắn muốn xóa danh mục{" "}
         <span className="font-bold">{categoryName}</span> không? Hành động này

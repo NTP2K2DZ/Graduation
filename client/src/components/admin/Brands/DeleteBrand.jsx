@@ -6,7 +6,6 @@ import { getAllBrands } from "../../../features/brand/brandsSlice";
 
 const DeleteBrand = ({ brandId, brandName, onClose }) => {
   const dispatch = useDispatch();
-  // console.log('Brand:', brandName);
 
   const handleDelete = useCallback(() => {
     dispatch(deleteBrand(brandId))
@@ -14,7 +13,7 @@ const DeleteBrand = ({ brandId, brandName, onClose }) => {
       .then(() => {
         console.log("Danh mục đã được xóa thành công.");
         dispatch(getAllBrands()); // Cập nhật danh sách sau khi xóa
-        onClose(); // Đóng modal
+        onClose();
       })
       .catch((error) => {
         console.error("Lỗi khi xóa danh mục:", error);
@@ -23,9 +22,7 @@ const DeleteBrand = ({ brandId, brandName, onClose }) => {
   
   return (
     <div className="space-y-4">
-      <h2 className="mb-4 text-xl font-semibold tracking-wide text-red-500">
-        Xóa thương hiệu
-      </h2>
+      <h2 className="mb-4 text-xl font-semibold tracking-wide text-red-500">Xóa thương hiệu</h2>
       <p className="text-gray-700">
         Bạn có chắc chắn muốn xóa thương hiệu{" "}
         <span className="font-bold">{brandName}</span> không? Hành động này không thể hoàn tác.
